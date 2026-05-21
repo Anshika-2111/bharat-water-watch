@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Report Issue — Bharat Water Watch</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="drop-icon">💧</span>
+      <span class="brand-text">Bharat<strong>Water</strong>Watch</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="report.html" class="active">Report Issue</a>
+      <a href="admin.html">Admin</a>
+    </div>
+  </nav>
+
+  <section class="report-hero">
+    <h1>Report a <span class="accent">Water Issue</span></h1>
+    <p>Help us keep India's water data accurate. Your report matters.</p>
+  </section>
+
+  <div class="report-container">
+    <div class="form-card">
+      <div class="form-group">
+        <label>Select District</label>
+        <select id="districtSelect">
+          <option value="">Loading districts...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Issue Type</label>
+        <select id="issueType">
+          <option value="">Select issue type</option>
+          <option value="Contamination">Contamination</option>
+          <option value="No Water Supply">No Water Supply</option>
+          <option value="High TDS">High TDS Level</option>
+          <option value="Bad Odour">Bad Odour / Colour</option>
+          <option value="Pipeline Leakage">Pipeline Leakage</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="description" placeholder="Describe the water issue in detail..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Your Name (optional)</label>
+        <input type="text" id="reportedBy" placeholder="Anonymous"/>
+      </div>
+      <button class="submit-btn" onclick="submitReport()">Submit Report →</button>
+      <div class="success-msg" id="successMsg">✅ Report submitted! Thank you for helping India.</div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span>💧 Bharat Water Watch — Built for India, by India</span>
+    <a href="index.html" class="footer-cta">← Back to Dashboard</a>
+  </footer>
+
+  <script>
+    const API = 'http://localhost:5000/api';
+
+    async function loadDistricts() {
+      const res = await fetch(`${API}/districts/`);
+      const data = await res.json();
+      const sel = document.getElementById('districtSelect');
+      sel.innerHTML = '<option value="">Select a district</option>' +
+        data.map(d => `<option value="${d.id}">${d.name} — ${d.state}</option>`).join('');
+    }
+
+    async function submitReport() {
+      const district_id = document.getElementById('districtSelect').value;
+      const issue_type  = document.getElementById('issueType').value;
+      const description = document.getElementById('description').value;
+      const reported_by = document.getElementById('reportedBy').value || 'Anonymous';
+
+      if (!district_id || !issue_type || !description) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+      const btn = document.querySelector('.submit-btn');
+      btn.textContent = 'Submitting...';
+      btn.disabled = true;
+
+      const res = await fetch(`${API}/reports/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ district_id, issue_type, description, reported_by })
+      });
+
+      if (res.ok) {
+        document.getElementById('successMsg').style.display = 'block';
+        document.querySelectorAll('#districtSelect, #issueType, #description, #reportedBy')
+          .forEach(el => el.value = '');
+      }
+      btn.textContent = 'Submit Report →';
+      btn.disabled = false;
+    }
+
+    loadDistricts();
+  </script>
+</body>
+</html>

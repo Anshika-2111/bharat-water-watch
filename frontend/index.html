@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bharat Water Watch</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="drop-icon">💧</span>
+      <span class="brand-text">Bharat<strong>Water</strong>Watch</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="active">Dashboard</a>
+      <a href="report.html">Report Issue</a>
+      <a href="admin.html">Admin</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-bg-text">WATER</div>
+    <div class="hero-content">
+      <p class="hero-tag">India's Water Safety Platform</p>
+      <h1 class="hero-title">Know Your Water.<br/><span class="accent">Protect Your Life.</span></h1>
+      <p class="hero-sub">Real-time water quality monitoring across Indian districts — crowd-sourced, verified, actionable.</p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-card">
+        <span class="stat-num" id="totalDistricts">—</span>
+        <span class="stat-label">Districts Tracked</span>
+      </div>
+      <div class="stat-card danger">
+        <span class="stat-num" id="highRisk">—</span>
+        <span class="stat-label">High Risk Zones</span>
+      </div>
+      <div class="stat-card safe">
+        <span class="stat-num" id="safeZones">—</span>
+        <span class="stat-label">Safe Zones</span>
+      </div>
+      <div class="stat-card warn">
+        <span class="stat-num" id="mediumRisk">—</span>
+        <span class="stat-label">Medium Risk</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="map-section">
+    <div class="section-header">
+      <h2>Live Risk Map</h2>
+      <div class="filter-pills">
+        <button class="pill active" onclick="filterMap('all', this)">All</button>
+        <button class="pill high" onclick="filterMap('High', this)">🔴 High Risk</button>
+        <button class="pill medium" onclick="filterMap('Medium', this)">🟡 Medium</button>
+        <button class="pill safe-btn" onclick="filterMap('Safe', this)">🟢 Safe</button>
+      </div>
+    </div>
+    <div id="map"></div>
+  </section>
+
+  <section class="cards-section">
+    <div class="section-header">
+      <h2>District Overview</h2>
+      <input type="text" id="searchBox" placeholder="Search district or state..." oninput="filterCards()"/>
+    </div>
+    <div class="cards-grid" id="cardsGrid">
+      <div class="loading-spinner">Loading districts...</div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>💧 Bharat Water Watch — Built for India, by India</span>
+    <a href="report.html" class="footer-cta">Report an Issue →</a>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="map.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

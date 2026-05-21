@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Bharat Water Watch</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="drop-icon">💧</span>
+      <span class="brand-text">Bharat<strong>Water</strong>Watch</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html">Dashboard</a>
+      <a href="report.html">Report Issue</a>
+      <a href="admin.html" class="active">Admin</a>
+    </div>
+  </nav>
+
+  <section class="admin-hero">
+    <h1>Admin <span class="accent">Panel</span></h1>
+    <p>View and manage all citizen-submitted water issue reports.</p>
+  </section>
+
+  <div class="admin-container">
+    <div class="hero-stats" style="margin-bottom:2rem">
+      <div class="stat-card warn">
+        <span class="stat-num" id="pendingCount">—</span>
+        <span class="stat-label">Pending</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num" id="verifiedCount">—</span>
+        <span class="stat-label">Verified</span>
+      </div>
+      <div class="stat-card safe">
+        <span class="stat-num" id="resolvedCount">—</span>
+        <span class="stat-label">Resolved</span>
+      </div>
+    </div>
+
+    <div class="reports-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>District</th><th>State</th>
+            <th>Issue</th><th>Reported By</th>
+            <th>Date</th><th>Status</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="reportsBody">
+          <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span>💧 Bharat Water Watch — Admin Panel</span>
+    <a href="index.html" class="footer-cta">← Back to Dashboard</a>
+  </footer>
+
+  <script>
+    const API = 'http://localhost:5000/api';
+
+    async function loadReports() {
+      const res = await fetch(`${API}/reports/`);
+      const reports = await res.json();
+
+      document.getElementById('pendingCount').textContent  = reports.filter(r => r.status === 'Pending').length;
+      document.getElementById('verifiedCount').textContent = reports.filter(r => r.status === 'Verified').length;
+      document.getElementById('resolvedCount').textContent = reports.filter(r => r.status === 'Resolved').length;
+
+      const tbody = document.getElementById('reportsBody');
+      if (!reports.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem">No reports yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = reports.map(r => `
+        <tr>
+          <td style="color:var(--text-muted)">#${r.id}</td>
+          <td style="font-weight:600">${r.district_name}</td>
+          <td style="color:var(--text-muted)">${r.state}</td>
+          <td>${r.issue_type}</td>
+          <td style="color:var(--text-muted)">${r.reported_by}</td>
+          <td style="color:var(--text-muted)">${new Date(r.created_at).toLocaleDateString('en-IN')}</td>
+          <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+          <td>
+            <select class="action-select" onchange="updateStatus(${r.id}, this.value)">
+              <option ${r.status==='Pending'  ? 'selected':''}>Pending</option>
+              <option ${r.status==='Verified' ? 'selected':''}>Verified</option>
+              <option ${r.status==='Resolved' ? 'selected':''}>Resolved</option>
+            </select>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function updateStatus(id, status) {
+      await fetch(`${API}/reports/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      loadReports();
+    }
+
+    loadReports();
+  </script>
+</body>
+</html>
