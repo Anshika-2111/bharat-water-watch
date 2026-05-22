@@ -6,36 +6,29 @@ reports_bp = Blueprint('reports', __name__)
 @reports_bp.route('/', methods=['GET'])
 def get_all_reports():
     conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT r.*, d.name as district_name, d.state 
-        FROM reports r 
+    reports = conn.execute('''
+        SELECT r.*, d.name as district_name, d.state
+        FROM reports r
         JOIN districts d ON r.district_id = d.id
         ORDER BY r.created_at DESC
-    """)
-    reports = cursor.fetchall()
-    cursor.close()
+    ''').fetchall()
     conn.close()
-    for r in reports:
-        r['created_at'] = str(r['created_at'])
-    return jsonify(reports)
+    return jsonify([dict(r) for r in reports])
 
 @reports_bp.route('/', methods=['POST'])
 def submit_report():
     data = request.get_json()
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
+    conn.execute('''
         INSERT INTO reports (district_id, issue_type, description, reported_by)
-        VALUES (%s, %s, %s, %s)
-    """, (
+        VALUES (?, ?, ?, ?)
+    ''', (
         data['district_id'],
         data['issue_type'],
         data['description'],
         data.get('reported_by', 'Anonymous')
     ))
     conn.commit()
-    cursor.close()
     conn.close()
     return jsonify({"message": "Report submitted successfully! ✅"}), 201
 
@@ -43,9 +36,7 @@ def submit_report():
 def update_status(id):
     data = request.get_json()
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE reports SET status = %s WHERE id = %s", (data['status'], id))
+    conn.execute("UPDATE reports SET status = ? WHERE id = ?", (data['status'], id))
     conn.commit()
-    cursor.close()
     conn.close()
     return jsonify({"message": "Status updated! ✅"})

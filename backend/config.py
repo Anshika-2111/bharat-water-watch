@@ -1,14 +1,9 @@
-import mysql.connector
-from dotenv import load_dotenv
+import sqlite3
 import os
 
-load_dotenv()
+DATABASE = os.path.join(os.path.dirname(__file__), 'water_watch.db')
 
 def get_db_connection():
-    connection = mysql.connector.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "bharat_water_watch")
-    )
-    return connection
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
