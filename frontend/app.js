@@ -1,4 +1,4 @@
-const API = 'http://localhost:5000/api';
+const API = 'https://bharat-water-watch-api.onrender.com/api';
 let allDistricts = [];
 
 async function loadDistricts() {
